@@ -14,24 +14,26 @@ public class AccountController {
 
     private final String TAG = Log.TAG + this.getClass().getSimpleName();
 
+    private static CommonResult<UserInfoResp> s = new CommonResult<>(200,"login success", new UserInfoResp(1, "aagwagagw", 15));
+
     @RequestMapping("/login")
     public CommonResult<UserInfoResp> login(@RequestParam("accountName") String accountName,
                                             @RequestParam("password") String password){
         Log.i(TAG, "login() called with: accountName = [" + accountName + "], password = [" + password + "]");
-        return CommonResult.obtain(200,"login success", new UserInfoResp(1, "aagwagagw", 15));
+        return new CommonResult<>(200,"login success", new UserInfoResp(1, "aagwagagw", 15));
     }
 
     @RequestMapping("/register")
     public CommonResult<UserInfoResp> register(@RequestParam("accountName") String accountName,
                                             @RequestParam("password") String password){
         Log.i(TAG, "register() called with: accountName = [" + accountName + "], password = [" + password + "]");
-        return CommonResult.obtain(200,"register success", new UserInfoResp(1, "aagwagagw", 15));
+        return new CommonResult<>(200,"register success", new UserInfoResp(1, "aagwagagw", 15));
     }
 
     @RequestMapping("/logout")
     public CommonResult<Void> logout(@RequestParam("accountName") String accountName){
         Log.i(TAG, "logout() called with: accountName = [" + accountName + "]");
-        return CommonResult.obtain(200,"logout success", null);
+        return new CommonResult<>(200,"logout success", null);
     }
 
 }
