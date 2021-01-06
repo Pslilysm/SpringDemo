@@ -4,6 +4,14 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+/**
+ * +-----------+-------------+------+-----+---------+-------+
+ * | Field     | Type        | Null | Key | Default | Extra |
+ * +-----------+-------------+------+-----+---------+-------+
+ * | token     | varchar(32) | NO   |     | NULL    |       |
+ * | accountId | int         | NO   |     | NULL    |       |
+ * +-----------+-------------+------+-----+---------+-------+
+ */
 @Mapper
 public interface TokenMapper {
 

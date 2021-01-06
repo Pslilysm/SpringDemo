@@ -3,18 +3,17 @@ package pers.cxd.springdemo.controller;
 import android.util.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 import pers.cxd.springdemo.Version;
 import pers.cxd.springdemo.bean.CommonResp;
 import pers.cxd.springdemo.bean.account.AccountInfo;
 import pers.cxd.springdemo.config.HttpCode;
-import pers.cxd.springdemo.service.TokenService;
+import pers.cxd.springdemo.exception.http.HttpExceptionImpl;
 import pers.cxd.springdemo.mapper.AccountMapper;
+import pers.cxd.springdemo.service.TokenService;
 
 @RestController
 @RequestMapping(Version.NAME + "/account")
@@ -35,18 +34,12 @@ public class AccountController {
         AccountInfo accountInfo = mAccountMapper.getUserInfoByAccountName(accountName);
         if (accountInfo != null){
             if (!accountInfo.getPassword().equals(password)){
-                throw HttpClientErrorException.create("password incorrect",
-                        HttpStatus.FORBIDDEN, "",
-                        new HttpHeaders(),
-                        null, null);
+                throw HttpExceptionImpl.create(HttpStatus.FORBIDDEN,"password incorrect");
             }
             accountInfo.setToken(mTokenService.getTokenByAccountId(accountInfo.getId()));
             return new CommonResp<>(HttpCode.OK, "login success", accountInfo);
         }else {
-            throw HttpClientErrorException.create("account not exits",
-                    HttpStatus.FORBIDDEN, "",
-                    new HttpHeaders(),
-                    null, null);
+            throw HttpExceptionImpl.create(HttpStatus.FORBIDDEN,"account not exits");
         }
     }
 
@@ -62,10 +55,7 @@ public class AccountController {
             return new CommonResp<>(HttpCode.OK, "register success", accountInfo);
         }catch (DuplicateKeyException ex){
             Log.e(TAG, "register: account " + accountName + " already exits");
-            throw HttpClientErrorException.create("account already exits",
-                    HttpStatus.FORBIDDEN, "",
-                    new HttpHeaders(),
-                    null, null);
+            throw HttpExceptionImpl.create(HttpStatus.FORBIDDEN,"account already exits");
         }
     }
 
