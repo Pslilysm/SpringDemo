@@ -1,12 +1,12 @@
 package pers.cxd.springdemo.bean;
 
-public class CommonResult<T> {
+public class CommonResp<T> {
 
     int code;
     String msg;
     T data;
 
-    public CommonResult(int code, String msg, T data) {
+    public CommonResp(int code, String msg, T data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
