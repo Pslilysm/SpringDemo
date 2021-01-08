@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pers.cxd.springdemo.Version;
 import pers.cxd.springdemo.bean.CommonResp;
+import pers.cxd.springdemo.bean.ErrorResp;
 import pers.cxd.springdemo.bean.account.AccountInfo;
 import pers.cxd.springdemo.config.HttpCode;
-import pers.cxd.springdemo.exception.http.HttpExceptionImpl;
+import pers.cxd.springdemo.exception.http.HttpException;
 import pers.cxd.springdemo.mapper.AccountMapper;
 import pers.cxd.springdemo.service.TokenService;
 
@@ -34,12 +35,14 @@ public class AccountController {
         AccountInfo accountInfo = mAccountMapper.getUserInfoByAccountName(accountName);
         if (accountInfo != null){
             if (!accountInfo.getPassword().equals(password)){
-                throw HttpExceptionImpl.create(HttpStatus.FORBIDDEN,"password incorrect");
+                throw HttpException.create(HttpStatus.UNAUTHORIZED,
+                        ErrorResp.create(HttpCode.Account.PASSWORD_INCORRECT, "password incorrect", null));
             }
             accountInfo.setToken(mTokenService.getTokenByAccountId(accountInfo.getId()));
-            return new CommonResp<>(HttpCode.OK, "login success", accountInfo);
+            return CommonResp.create(HttpCode.Common.OK, "login success", accountInfo);
         }else {
-            throw HttpExceptionImpl.create(HttpStatus.FORBIDDEN,"account not exits");
+            throw HttpException.create(HttpStatus.UNAUTHORIZED,
+                    ErrorResp.create(HttpCode.Account.ACCOUNT_NOT_EXIST, "account not exits", null));
         }
     }
 
@@ -50,14 +53,21 @@ public class AccountController {
         try {
             mAccountMapper.register(accountName, password);
             AccountInfo accountInfo = mAccountMapper.getUserInfoByAccountName(accountName);
-            String token = mTokenService.generateTokenWithAccount(accountInfo);
-            accountInfo.setToken(token);
-            return new CommonResp<>(HttpCode.OK, "register success", accountInfo);
+            accountInfo.setToken(mTokenService.generateTokenWithAccount(accountInfo));
+            return CommonResp.create(HttpCode.Common.OK, "register success", accountInfo);
         }catch (DuplicateKeyException ex){
             Log.e(TAG, "register: account " + accountName + " already exits");
-            throw HttpExceptionImpl.create(HttpStatus.FORBIDDEN,"account already exits");
+            throw HttpException.create(HttpStatus.FORBIDDEN,
+                    ErrorResp.create(HttpCode.Account.ACCOUNT_ALREADY_EXIST, "account already exits", null));
         }
     }
+
+//    @RequestMapping("/setPermissionFlags")
+//    public CommonResp<Void>  setPermissionFlags(@RequestParam("token") String token,
+//                                                @RequestParam("permissionFlags") int permissionFlags){
+//        int accountId = mTokenService.getAccountIdByToken(token);
+//        if (accountId !)
+//    }
 
 
 

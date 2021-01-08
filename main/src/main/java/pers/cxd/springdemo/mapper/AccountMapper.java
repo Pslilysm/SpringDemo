@@ -20,10 +20,13 @@ import pers.cxd.springdemo.bean.account.AccountInfo;
 @Mapper
 public interface AccountMapper {
 
+    /**
+     * @throws DuplicateKeyException if this accountName already exits
+     */
     @Insert("insert into account(accountName, password) values(#{accountName}, #{password})")
     void register(String accountName, String password) throws DuplicateKeyException;
 
-    @Select("SELECT * FROM account WHERE accountName = #{accountName}")
+    @Select("select * from account where accountName = #{accountName}")
     AccountInfo getUserInfoByAccountName(String accountName);
 
 }
