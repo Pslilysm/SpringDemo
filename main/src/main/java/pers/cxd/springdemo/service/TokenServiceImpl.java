@@ -2,7 +2,6 @@ package pers.cxd.springdemo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pers.cxd.core.util.MD5Util;
 import pers.cxd.springdemo.bean.account.AccountInfo;
 import pers.cxd.springdemo.mapper.TokenMapper;
 
@@ -14,11 +13,16 @@ public class TokenServiceImpl implements TokenService{
     @Autowired
     private TokenMapper mTokenMapper;
 
+    private final Object mUUIDLock = new Object();
+
     @Override
     public String generateTokenWithAccount(AccountInfo accountInfo){
-        String token = MD5Util.md5(UUID.randomUUID().toString());
-        mTokenMapper.insertTokenWithAccount(token, accountInfo.getId());
-        return token;
+        String uuid;
+        synchronized (mUUIDLock){
+            uuid = UUID.randomUUID().toString();
+        }
+        mTokenMapper.insertTokenWithAccount(uuid, accountInfo.getId());
+        return uuid;
     }
 
     @Override

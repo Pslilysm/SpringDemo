@@ -16,10 +16,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
-    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
-
-    implementation project(":core")
+    implementation 'commons-io:commons-io:2.8.0'
 }
 
 test {
@@ -34,16 +32,13 @@ jar {
         attributes 'Class-Path': someString
     }
 }
-//清除上次的编译过的文件
-task clearPj(type:Delete){
-    delete 'build','target'
-}
+
 task copyJar(type:Copy){
     from configurations.runtime
     into ('build/output/')
 }
 //把JAR复制到目标目录
-task release(type: Copy,dependsOn: [build, copyJar]) {
+task release(type: Copy, dependsOn: [build, copyJar]) {
  from 'conf'
  into ('build/output/') // 目标位置
 }

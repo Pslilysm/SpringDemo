@@ -18,6 +18,11 @@ public class AccountInfo {
         this.registerTime = registerTime;
     }
 
+    public AccountInfo(String accountName, String password) {
+        this.accountName = accountName;
+        this.password = password;
+    }
+
     public int getId() {
         return id;
     }

@@ -16,6 +16,11 @@ import pers.cxd.springdemo.exception.http.HttpException;
 import pers.cxd.springdemo.mapper.AccountMapper;
 import pers.cxd.springdemo.service.TokenService;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 @RestController
 @RequestMapping(Version.NAME + "/account")
 public class AccountController {
@@ -28,11 +33,30 @@ public class AccountController {
     @Autowired
     private TokenService mTokenService;
 
+    private final ScheduledExecutorService mExecutorService = Executors.newScheduledThreadPool(100);
+
     @RequestMapping("/login")
     public CommonResp<AccountInfo> login(@RequestParam("accountName") String accountName,
                                          @RequestParam("password") String password){
         Log.i(TAG, "login() called with: accountName = [" + accountName + "], password = [" + password + "]");
+        Log.i(TAG, "login() called with: accountName = [" + accountName + "], password = [" + password + "]");
         AccountInfo accountInfo = mAccountMapper.getUserInfoByAccountName(accountName);
+        for (int i = 1; i <= 30; i++) {
+            final int k = i;
+            mExecutorService.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "run: ready to run sql_" + k);
+                    List<AccountInfo> accountInfoList = mAccountMapper.getAllUserInfoTemp(k);
+//                    try {
+//                        accountInfoList = DatabaseManager.getInstance().getAllUserInfoTemp(k);
+//                    } catch (SQLException throwables) {
+//                        Log.e(TAG, "run: ", throwables);
+//                    }
+                    Log.i(TAG, "run: run sql_" + k + " finish, size = " + accountInfoList.size());
+                }
+            }, 1, TimeUnit.SECONDS);
+        }
         if (accountInfo != null){
             if (!accountInfo.getPassword().equals(password)){
                 throw HttpException.create(HttpStatus.UNAUTHORIZED,

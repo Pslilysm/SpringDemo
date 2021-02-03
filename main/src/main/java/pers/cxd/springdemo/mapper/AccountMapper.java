@@ -1,10 +1,10 @@
 package pers.cxd.springdemo.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.dao.DuplicateKeyException;
 import pers.cxd.springdemo.bean.account.AccountInfo;
+
+import java.util.List;
 
 /**
  * +-----------------+-------------+------+-----+-------------------+-------------------+
@@ -28,5 +28,14 @@ public interface AccountMapper {
 
     @Select("select * from account where accountName = #{accountName}")
     AccountInfo getUserInfoByAccountName(String accountName);
+
+    @Select("select * from account")
+    List<AccountInfo> getAllUserInfo();
+
+    @Select("select accountName, password from account_#{table_id}")
+    List<AccountInfo> getAllUserInfoTemp(int table_id);
+
+    @Update("create table account_${table_id}(accountName varchar(32), password varchar(32));")
+    int createNewAccountTable(@Param("table_id") int id);
 
 }
