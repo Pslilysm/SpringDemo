@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Log {
 
-    public static final String TAG = "DEBUG_CXD_";
-
     private Log() {
     }
 

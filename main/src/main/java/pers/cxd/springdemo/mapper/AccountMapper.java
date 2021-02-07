@@ -29,13 +29,10 @@ public interface AccountMapper {
     @Select("select * from account where accountName = #{accountName}")
     AccountInfo getUserInfoByAccountName(String accountName);
 
-    @Select("select * from account")
-    List<AccountInfo> getAllUserInfo();
-
     @Select("select accountName, password from account_#{table_id}")
     List<AccountInfo> getAllUserInfoTemp(int table_id);
 
-    @Update("create table account_${table_id}(accountName varchar(32), password varchar(32));")
-    int createNewAccountTable(@Param("table_id") int id);
+    @Update("create table account_#{table_id}(accountName varchar(32), password varchar(32));")
+    int createNewAccountTable(int table_id);
 
 }
