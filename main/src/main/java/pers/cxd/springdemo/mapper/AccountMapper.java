@@ -32,7 +32,7 @@ public interface AccountMapper {
     @Select("select accountName, password from account_#{table_id}")
     List<AccountInfo> getAllUserInfoTemp(int table_id);
 
-    @Update("create table account_#{table_id}(accountName varchar(32), password varchar(32));")
+    @Update("create table account_#{table_id}(accountName varchar(32), password varchar(32))")
     int createNewAccountTable(int table_id);
 
 }

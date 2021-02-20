@@ -13,47 +13,57 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pers.cxd.springdemo.mapper.ApplicationMapper;
+import pers.cxd.springdemo.socket.ServerSocketService;
 import pers.cxd.springdemo.util.refrection.ReflectionUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 
 @SpringBootApplication
-@Controller
+@RestController
 public class SpringDemoApplication {
 
     final static String TAG = SpringDemoApplication.class.getSimpleName();
 
     public static void main(String[] args) {
         SpringApplication.run(SpringDemoApplication.class, args);
+        setDBPoolSize();
+        acceptSocket();
+    }
+
+    private static void setDBPoolSize(){
         OkHttpClient client = new OkHttpClient.Builder()
                 .proxy(java.net.Proxy.NO_PROXY)
                 .build();
         Request request = new Request.Builder()
-                .url("http://localhost/setPoolSize?poolSize=100")
+                .url("http://localhost/setDBPoolSize?poolSize=100")
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            String ret = response.body().string();
-            Log.i(TAG, "main: " + ret);
+//            String ret = response.body().string();
+//            Log.i(TAG, "main: " + ret);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void acceptSocket(){
+        try {
+            ServerSocketService.getInstance().accept(5050);
+        } catch (IOException e) {
+            Log.e(TAG, "main: ", e);
+            System.exit(-1);
         }
     }
 
     @Autowired
     ApplicationMapper mApplicationMapper;
 
-    @RequestMapping("/")
-    public String index() {
-        return "index.html";
-    }
-
-    @RequestMapping("/setPoolSize")
-    public String init(@RequestParam("poolSize") int poolSize){
+    @RequestMapping("/setDBPoolSize")
+    public Object init(@RequestParam("poolSize") int poolSize){
         int ret = mApplicationMapper.ping();
         Log.i(TAG, "init: " + ret);
         MapperProxy<?> mapperProxy = (MapperProxy<?>) Proxy.getInvocationHandler(mApplicationMapper);
@@ -69,7 +79,7 @@ public class SpringDemoApplication {
         } catch (ReflectiveOperationException e) {
             Log.e(TAG, "init: ", e);
         }
-        return "index.html";
+        return "set pool size success";
     }
 
 }

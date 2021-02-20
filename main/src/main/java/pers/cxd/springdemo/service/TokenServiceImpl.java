@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pers.cxd.springdemo.bean.account.AccountInfo;
 import pers.cxd.springdemo.mapper.TokenMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
@@ -13,14 +14,14 @@ public class TokenServiceImpl implements TokenService{
     @Autowired
     private TokenMapper mTokenMapper;
 
-    private final Object mUUIDLock = new Object();
+//    private final Object mUUIDLock = new Object();
 
     @Override
     public String generateTokenWithAccount(AccountInfo accountInfo){
         String uuid;
-        synchronized (mUUIDLock){
-            uuid = UUID.randomUUID().toString();
-        }
+//        synchronized (mUUIDLock){
+            uuid = UUID.nameUUIDFromBytes(accountInfo.getAccountName().getBytes(StandardCharsets.UTF_8)).toString();
+//        }
         mTokenMapper.insertTokenWithAccount(uuid, accountInfo.getId());
         return uuid;
     }

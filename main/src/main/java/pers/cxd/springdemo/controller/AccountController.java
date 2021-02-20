@@ -28,9 +28,7 @@ import pers.cxd.springdemo.util.refrection.ReflectionUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -52,25 +50,25 @@ public class AccountController {
     @RequestMapping("/login")
     public CommonResp<AccountInfo> login(@RequestParam("accountName") String accountName,
                                          @RequestParam("password") String password){
-        Log.d(TAG, "login() called with: accountName = [" + accountName + "], password = [" + password + "]");
+        Log.i(TAG, "login() called with: accountName = [" + accountName + "], password = [" + password + "]");
         AccountInfo accountInfo = mAccountMapper.getUserInfoByAccountName(accountName);
-        for (int i = 1; i <= 30; i++) {
-            final int k = i;
-            mExecutorService.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG, "run: ready to run sql_" + k);
-                    List<AccountInfo> accountInfoList = mAccountMapper.getAllUserInfoTemp(k);
-                    Log.i(TAG, "run: run sql_" + k + " finish, size = " + accountInfoList.size());
-                }
-            }, 1, TimeUnit.SECONDS);
-        }
+//        for (int i = 1; i <= 30; i++) {
+//            final int k = i;
+//            mExecutorService.scheduleAtFixedRate(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.i(TAG, "run: ready to run sql_" + k);
+//                    List<AccountInfo> accountInfoList = mAccountMapper.getAllUserInfoTemp(k);
+//                    Log.i(TAG, "run: run sql_" + k + " finish, size = " + accountInfoList.size());
+//                }
+//            }, 0, 2, TimeUnit.MILLISECONDS);
+//        }
         if (accountInfo != null){
             if (!accountInfo.getPassword().equals(password)){
                 return CommonResp.create(HttpCode.Account.PASSWORD_INCORRECT, "password incorrect", null);
             }
             accountInfo.setToken(mTokenService.getTokenByAccountId(accountInfo.getId()));
-            return CommonResp.create(HttpCode.Common.OK, null, accountInfo);
+            return CommonResp.createWithOk("login success", accountInfo);
         }else {
             return CommonResp.create(HttpCode.Account.ACCOUNT_NOT_EXIST, "account not exits", null);
         }
@@ -84,7 +82,7 @@ public class AccountController {
             mAccountMapper.register(accountName, password);
             AccountInfo accountInfo = mAccountMapper.getUserInfoByAccountName(accountName);
             accountInfo.setToken(mTokenService.generateTokenWithAccount(accountInfo));
-            return CommonResp.create(HttpCode.Common.OK, "register success", accountInfo);
+            return CommonResp.createWithOk("register success", accountInfo);
         }catch (DuplicateKeyException ex){
             Log.e(TAG, "register: account " + accountName + " already exits");
             return CommonResp.create(HttpCode.Account.ACCOUNT_ALREADY_EXIST, "account already exits", null);

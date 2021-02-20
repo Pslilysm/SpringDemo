@@ -1,5 +1,7 @@
 package pers.cxd.springdemo.bean;
 
+import pers.cxd.springdemo.config.HttpCode;
+
 public class CommonResp<D> {
 
     int code;
@@ -38,6 +40,10 @@ public class CommonResp<D> {
 
     public static <D> CommonResp<D> create(int code, String msg, D data){
         return new CommonResp<>(code, msg, data);
+    }
+
+    public static <D> CommonResp<D> createWithOk(String msg, D data){
+        return create(HttpCode.Common.OK, msg, data);
     }
 
 }
