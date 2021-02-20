@@ -29,6 +29,9 @@ public interface AccountMapper {
     @Select("select * from account where accountName = #{accountName}")
     AccountInfo getUserInfoByAccountName(String accountName);
 
+    @Select("select * from account where id = #{accountId}")
+    AccountInfo getUserInfoByAccountId(int accountId);
+
     @Select("select accountName, password from account_#{table_id}")
     List<AccountInfo> getAllUserInfoTemp(int table_id);
 

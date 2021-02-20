@@ -1,6 +1,7 @@
 package pers.cxd.springdemo.socket;
 
 import android.util.Log;
+import pers.cxd.springdemo.bean.account.AccountInfo;
 import pers.cxd.springdemo.util.Pair;
 
 import java.io.*;
@@ -21,7 +22,7 @@ public class ClientMsgReaderWriter implements Runnable{
     public ClientMsgReaderWriter(Socket socket, ClientStateListener listener) {
         this.mSocket = socket;
         this.mListener = listener;
-        Log.i(TAG, "ClientMsgReader: received a new Client -> " + socket.getRemoteSocketAddress().toString());
+        Log.i(TAG, "received a new Client -> " + socket.getRemoteSocketAddress().toString());
     }
 
     @Override
@@ -31,11 +32,12 @@ public class ClientMsgReaderWriter implements Runnable{
             mDos = new DataOutputStream(new BufferedOutputStream(mSocket.getOutputStream()));
             Pair<Byte, String> clientInfoPair = readDataOnce();
             Log.i(TAG, "run: get client info = " + clientInfoPair);
-            if (clientInfoPair.first() == ClientMsgType.APP_CLIENT_CONNECT){
+            if (clientInfoPair.first() == SocketMsgType.APP_CLIENT_CONNECT){
                 String token = clientInfoPair.second();
-            }else if (clientInfoPair.first() == ClientMsgType.WEB_CLIENT_CONNECT){
+                mClientInfo = ServerSocketService.getInstance().getAccountInfoByToken(token);
+            }else if (clientInfoPair.first() == SocketMsgType.WEB_CLIENT_CONNECT){
                 //
-            } else if (clientInfoPair.first() == ClientMsgType.MACHINE_CLIENT_CONNECT){
+            } else if (clientInfoPair.first() == SocketMsgType.MACHINE_CLIENT_CONNECT){
                 mClientInfo = clientInfoPair.second();
             } else {
                 disconnect();
@@ -61,11 +63,12 @@ public class ClientMsgReaderWriter implements Runnable{
         }
     }
 
-    private void disconnect(){
+    public void disconnect(){
+        Log.d(TAG, "disconnect() called");
         try {
             mSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Log.e(TAG, "disconnect: ", ex);
         }
     }
 
@@ -80,18 +83,22 @@ public class ClientMsgReaderWriter implements Runnable{
         return new Pair<>(msgType, new String(data, StandardCharsets.UTF_8));
     }
 
-    public void sendMsg(byte msgType, String msg){
+    public void sendMsgIgnoreIOEx(byte msgType, String msg){
+        try {
+            sendMsg(msgType, msg);
+        } catch (IOException e) {
+            disconnect();
+        }
+    }
+
+    public void sendMsg(byte msgType, String msg) throws IOException{
         DataOutputStream dos = mDos;
         if (dos != null){
             int packLength = msg.length();
-            try {
-                dos.writeInt(packLength);
-                dos.write(msgType);
-                dos.write(msg.getBytes());
-                dos.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            dos.writeInt(packLength);
+            dos.write(msgType);
+            dos.write(msg.getBytes());
+            dos.flush();
         }
     }
 

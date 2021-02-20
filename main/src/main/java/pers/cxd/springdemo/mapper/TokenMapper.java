@@ -18,7 +18,7 @@ public interface TokenMapper {
     @Insert("insert into token(token, accountId) values(#{token}, #{accountId})")
     void insertTokenWithAccount(String token, int accountId);
 
-    @Select("select id from token where token = #{token}")
+    @Select("select accountId from token where token = #{token}")
     int getAccountIdByToken(String token);
 
     @Select("select token from token where accountId = #{accountId}")
