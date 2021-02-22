@@ -1,7 +1,6 @@
 package pers.cxd.springdemo.socket;
 
 import android.util.Log;
-import pers.cxd.springdemo.bean.account.AccountInfo;
 import pers.cxd.springdemo.util.Pair;
 
 import java.io.*;
@@ -57,7 +56,6 @@ public class ClientMsgReaderWriter implements Runnable{
             } catch (IOException e) {
                 Log.e(TAG, "run: ", e);
                 disconnect();
-                mListener.onClientDisconnected(mClientInfo, this);
                 return;
             }
         }
@@ -69,6 +67,9 @@ public class ClientMsgReaderWriter implements Runnable{
             mSocket.close();
         } catch (IOException ex) {
             Log.e(TAG, "disconnect: ", ex);
+        }
+        if (mClientInfo != null){
+            mListener.onClientDisconnected(mClientInfo, this);
         }
     }
 
@@ -91,7 +92,7 @@ public class ClientMsgReaderWriter implements Runnable{
         }
     }
 
-    public void sendMsg(byte msgType, String msg) throws IOException{
+    public synchronized void sendMsg(byte msgType, String msg) throws IOException{
         DataOutputStream dos = mDos;
         if (dos != null){
             int packLength = msg.length();
